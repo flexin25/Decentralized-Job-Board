@@ -7,7 +7,7 @@ use soroban_sdk::{
 pub struct JobBoard;
 
 #[derive(Clone)]
-#[contracttype] // 🔥 REQUIRED for storage
+#[contracttype] 
 pub struct Job {
     pub id: u64,
     pub title: String,

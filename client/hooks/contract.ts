@@ -26,7 +26,7 @@ import {
 
 /** Your deployed Soroban contract ID */
 export const CONTRACT_ADDRESS =
-  "CDJVMAX34YRCQ5JFC6SIOQOVSUY6XWEFYJOLF3SBCKU7CMI3IAP6HPWN";
+  "CBO27MTTGYPTBIV56VLGK4JBKYS6HGOOTG6UIRYPEMYF2ZGMMTAAVKRL";
 
 /** Network passphrase (testnet by default) */
 export const NETWORK_PASSPHRASE = Networks.TESTNET;
@@ -212,55 +212,49 @@ export function toScValBool(value: boolean): xdr.ScVal {
 }
 
 // ============================================================
-// Supply Chain Tracker — Contract Methods
+// Decentralised Job Board — Contract Methods
 // ============================================================
 
 /**
- * Add a product to the supply chain.
- * Calls: add_product(product_id: String, origin: String)
+ * Post a new job to the board.
+ * Calls: post_job(title: String, description: String, employer: String) -> u64
  */
-export async function addProduct(
+export async function postJob(
   caller: string,
-  productId: string,
-  origin: string
+  title: string,
+  description: string,
+  employer: string
 ) {
   return callContract(
-    "add_product",
-    [toScValString(productId), toScValString(origin)],
+    "post_job",
+    [toScValString(title), toScValString(description), toScValString(employer)],
     caller,
     true
   );
 }
 
 /**
- * Update a product's status.
- * Calls: update_status(product_id: String, new_status: String)
+ * Get a single job by ID (read-only).
+ * Calls: get_job(id: u64) -> Job
+ * Returns: { id: number, title: string, description: string, employer: string }
  */
-export async function updateProductStatus(
-  caller: string,
-  productId: string,
-  newStatus: string
-) {
-  return callContract(
-    "update_status",
-    [toScValString(productId), toScValString(newStatus)],
-    caller,
-    true
-  );
-}
-
-/**
- * Get product details (read-only).
- * Calls: get_product(product_id: String) -> Map<Symbol, String>
- * Returns: { origin: string, status: string } or null
- */
-export async function getProduct(
-  productId: string,
-  caller?: string
-) {
+export async function getJob(id: number, caller?: string) {
   return readContract(
-    "get_product",
-    [toScValString(productId)],
+    "get_job",
+    [toScValU32(id)],
+    caller
+  );
+}
+
+/**
+ * Get all jobs (read-only).
+ * Calls: get_all_jobs() -> Vec<Job>
+ * Returns: Array of job objects
+ */
+export async function getAllJobs(caller?: string) {
+  return readContract(
+    "get_all_jobs",
+    [],
     caller
   );
 }
