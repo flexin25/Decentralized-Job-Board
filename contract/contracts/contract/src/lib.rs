@@ -1,58 +1,56 @@
 #![no_std]
-use soroban_sdk::{
-    contract, contractimpl, contracttype, Env, Symbol, Vec, String
-};
+use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Env, Map, String};
 
 #[contract]
-pub struct JobBoard;
+pub struct Contract;
 
 #[derive(Clone)]
-#[contracttype] 
-pub struct Job {
-    pub id: u64,
-    pub title: String,
-    pub description: String,
-    pub employer: String,
+#[contracttype]
+pub struct Product {
+    pub product_id: String,
+    pub origin: String,
+    pub status: String,
 }
 
 #[contractimpl]
-impl JobBoard {
-    pub fn post_job(env: Env, title: String, description: String, employer: String) -> u64 {
-        let key = Symbol::short("COUNT");
+impl Contract {
+    pub fn add_product(env: Env, product_id: String, origin: String) {
+        let key = symbol_short!("products");
+        let mut products: Map<String, Product> =
+            env.storage().instance().get(&key).unwrap_or(Map::new(&env));
 
-        let mut count: u64 = env.storage().instance().get(&key).unwrap_or(0);
-        count += 1;
+        assert!(
+            !products.contains_key(product_id.clone()),
+            "product already exists"
+        );
 
-        let job = Job {
-            id: count,
-            title,
-            description,
-            employer,
+        let product = Product {
+            product_id: product_id.clone(),
+            origin,
+            status: String::from_str(&env, "Created"),
         };
-
-        env.storage().instance().set(&count, &job);
-        env.storage().instance().set(&key, &count);
-
-        count
+        products.set(product_id, product);
+        env.storage().instance().set(&key, &products);
     }
 
-    pub fn get_job(env: Env, id: u64) -> Job {
-        env.storage().instance().get(&id).unwrap()
+    pub fn update_status(env: Env, product_id: String, new_status: String) {
+        let key = symbol_short!("products");
+        let mut products: Map<String, Product> =
+            env.storage().instance().get(&key).unwrap_or(Map::new(&env));
+
+        let mut product = products.get(product_id.clone()).expect("product not found");
+        product.status = new_status;
+        products.set(product_id, product);
+        env.storage().instance().set(&key, &products);
     }
 
-    pub fn get_all_jobs(env: Env) -> Vec<Job> {
-        let key = Symbol::short("COUNT");
-        let count: u64 = env.storage().instance().get(&key).unwrap_or(0);
+    pub fn get_product(env: Env, product_id: String) -> Product {
+        let key = symbol_short!("products");
+        let products: Map<String, Product> =
+            env.storage().instance().get(&key).unwrap_or(Map::new(&env));
 
-        let mut jobs = Vec::new(&env);
-
-        let mut i = 1;
-        while i <= count {
-            let job: Job = env.storage().instance().get(&i).unwrap();
-            jobs.push_back(job);
-            i += 1;
-        }
-
-        jobs
+        products.get(product_id).expect("product not found")
     }
 }
+
+mod test;

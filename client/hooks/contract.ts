@@ -212,24 +212,53 @@ export function toScValBool(value: boolean): xdr.ScVal {
 }
 
 // ============================================================
-// Decentralised Job Board — Contract Methods
+// Supply Chain Tracker — Contract Methods
 // ============================================================
 
 /**
- * Post a new job to the board.
- * Calls: post_job(title: String, description: String, employer: String) -> u64
+ * Add a new product to the supply chain.
+ * Calls: add_product(product_id: String, origin: String)
  */
-export async function postJob(
+export async function addProduct(
   caller: string,
-  title: string,
-  description: string,
-  employer: string
+  productId: string,
+  origin: string
 ) {
   return callContract(
-    "post_job",
-    [toScValString(title), toScValString(description), toScValString(employer)],
+    "add_product",
+    [toScValString(productId), toScValString(origin)],
     caller,
     true
+  );
+}
+
+/**
+ * Update product status.
+ * Calls: update_status(product_id: String, new_status: String)
+ */
+export async function updateProductStatus(
+  caller: string,
+  productId: string,
+  newStatus: string
+) {
+  return callContract(
+    "update_status",
+    [toScValString(productId), toScValString(newStatus)],
+    caller,
+    true
+  );
+}
+
+/**
+ * Get a single product by ID (read-only).
+ * Calls: get_product(product_id: String) -> Product
+ * Returns: { product_id: string, origin: string, status: string }
+ */
+export async function getProduct(productId: string, caller?: string) {
+  return readContract(
+    "get_product",
+    [toScValString(productId)],
+    caller
   );
 }
 
