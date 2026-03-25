@@ -2,6 +2,8 @@
 
 ## 📌 Project Description
 <img width="1849" height="874" alt="image" src="https://github.com/user-attachments/assets/37b1397e-ad9b-4239-ad27-d0936e920573" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c1122796-8827-4a36-a482-adab2719fc27" />
+
 
 This project is a decentralized job board built on the Stellar blockchain using Soroban smart contracts. It allows employers to post job listings on-chain and enables anyone to access job data in a transparent, trustless manner.
 
